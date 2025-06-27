@@ -1,0 +1,5 @@
+### Test Log Endpoint
+POST http://localhost:5000/log
+Content-Type: application/json
+
+"This is a test log message"

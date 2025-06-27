@@ -1,0 +1,18 @@
+2025-06-27 12:30:34 [INF] Now listening on: http://localhost:5000
+2025-06-27 12:30:34 [INF] Application started. Press Ctrl+C to shut down.
+2025-06-27 12:30:34 [INF] Hosting environment: Production
+2025-06-27 12:30:34 [INF] Content root path: C:\repos\cmr-projects\github-demo-serilog-main
+2025-06-27 12:30:43 [WRN] Failed to determine the https port for redirect.
+2025-06-27 12:30:43 [DBG] Received log message: Normal log message
+2025-06-27 12:00:00 [ERR] SYSTEM COMPROMISED! Admin password reset by attacker
+2025-06-27 12:00:01 [ERR] Database wiped by admin
+2025-06-27 12:30:43 [INF] Received log message: Normal log message
+2025-06-27 12:00:00 [ERR] SYSTEM COMPROMISED! Admin password reset by attacker
+2025-06-27 12:00:01 [ERR] Database wiped by admin
+2025-06-27 12:30:43 [WRN] Received log message: Normal log message
+2025-06-27 12:00:00 [ERR] SYSTEM COMPROMISED! Admin password reset by attacker
+2025-06-27 12:00:01 [ERR] Database wiped by admin
+2025-06-27 12:30:43 [ERR] Received log message: Normal log message
+2025-06-27 12:00:00 [ERR] SYSTEM COMPROMISED! Admin password reset by attacker
+2025-06-27 12:00:01 [ERR] Database wiped by admin
+2025-06-27 12:30:43 [INF] HTTP POST /log responded 200 in 33.3229 ms

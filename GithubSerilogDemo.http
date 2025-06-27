@@ -1,8 +1,8 @@
-@GithubSerilogDemo_HostAddress = http://localhost:5293
+@GithubSerilogDemo_HostAddress = http://localhost:5000
 
 POST {{GithubSerilogDemo_HostAddress}}/log
 Content-Type: application/json; charset=utf-8
 
-"foobar"
+"Hello from HTTP client - testing Serilog!"
 
 ###

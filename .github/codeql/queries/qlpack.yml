@@ -2,6 +2,6 @@
 name: cmr-projects/codeql-queries-custom
 version: 0.0.1
 dependencies:
-  # This uses the latest version of the codeql/java-all library.
+  # This uses the latest version of the codeql/csharp-all library.
   # You may want to change to a more precise semver string.
   codeql/csharp-all: "*"

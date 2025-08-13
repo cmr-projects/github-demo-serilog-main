@@ -48,15 +48,11 @@ private predicate isSerilogConfiguredSafely() {
     oc.getObjectType().hasFullyQualifiedName("Serilog.Formatting.Compact", "RenderedCompactJsonFormatter") or
     oc.getObjectType().getName() = "RenderedCompactJsonFormatter"
   ) and
-  // Ensure no unsafe WriteTo configurations exist (like File with outputTemplate)
-  not exists(MethodCall unsafeWriteTo |
-    unsafeWriteTo.getTarget().hasName("File") and
-    unsafeWriteTo.getQualifier().getType().getName().matches("%LoggerConfiguration%") and
-    exists(Expr templateArg |
-      templateArg = unsafeWriteTo.getArgumentForName("outputTemplate") and
-      // Check if the template contains unsafe formatting patterns
-      templateArg.getValue().toString().matches("%{Message:lj}%")
-    )
+  // Ensure no unsafe File logging with outputTemplate exists
+  not exists(MethodCall fileCall |
+    fileCall.getTarget().hasName("File") and
+    fileCall.getQualifier().getType().getName().matches("%LoggerConfiguration%") and
+    fileCall.getArgumentForName("outputTemplate").getValue().toString().matches("%{Message:lj}%")
   )
 }
 

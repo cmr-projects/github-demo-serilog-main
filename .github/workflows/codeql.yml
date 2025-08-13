@@ -70,6 +70,9 @@ jobs:
         languages: ${{ matrix.language }}
         build-mode: ${{ matrix.build-mode }}
         config: |
+          queries:
+             - name: Custom Log Forging Safe Query (in this repo directly - not published to a pack)
+               uses: ./.github/codeql/queries/LogForgingSafe.ql        
           query-filters:
             - exclude:
                 id: cs/log-forging

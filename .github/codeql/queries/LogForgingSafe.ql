@@ -39,15 +39,24 @@ abstract class Sink extends ApiSinkExprNode { }
 abstract class Sanitizer extends DataFlow::ExprNode { }
 
 /**
- * A predicate to detect if Serilog is configured with safe formatters.
- * This looks for the presence of RenderedCompactJsonFormatter which safely escapes log entries.
+ * A predicate to detect if Serilog is configured with safe formatters ONLY.
+ * This ensures ALL Serilog outputs use safe formatting like RenderedCompactJsonFormatter.
  */
 private predicate isSerilogConfiguredSafely() {
-  // Check if RenderedCompactJsonFormatter is used anywhere in the application
-  // This formatter prevents log forging by properly escaping special characters
+  // Check if RenderedCompactJsonFormatter is used in the application
   exists(ObjectCreation oc |
     oc.getObjectType().hasFullyQualifiedName("Serilog.Formatting.Compact", "RenderedCompactJsonFormatter") or
     oc.getObjectType().getName() = "RenderedCompactJsonFormatter"
+  ) and
+  // Ensure no unsafe WriteTo configurations exist (like File with outputTemplate)
+  not exists(MethodCall unsafeWriteTo |
+    unsafeWriteTo.getTarget().hasName("File") and
+    unsafeWriteTo.getQualifier().getType().getName().matches("%LoggerConfiguration%") and
+    exists(Expr templateArg |
+      templateArg = unsafeWriteTo.getArgumentForName("outputTemplate") and
+      // Check if the template contains unsafe formatting patterns
+      templateArg.getValue().toString().matches("%{Message:lj}%")
+    )
   )
 }
 

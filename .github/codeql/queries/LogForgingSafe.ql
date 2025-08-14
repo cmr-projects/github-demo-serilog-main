@@ -18,22 +18,39 @@ import semmle.code.csharp.security.dataflow.LogForgingQuery
 import semmle.code.csharp.commons.Loggers
 
 /**
+ * A predicate to detect if there are unsafe Serilog output configurations.
+ * An output is unsafe if Serilog is configured but no safe formatters are used.
+ * Safe formatters are: RenderedCompactJsonFormatter, JsonFormatter.
+ */
+private predicate hasUnsafeSerilogOutputs() {
+  // Check if Serilog is configured
+  exists(MethodCall useSerilog |
+    useSerilog.getTarget().hasName("UseSerilog")
+  ) and
+  // But no safe formatters are used
+  not exists(ObjectCreation formatter |
+    formatter.getObjectType().hasFullyQualifiedName("Serilog.Formatting.Compact", "RenderedCompactJsonFormatter") or
+    formatter.getObjectType().getName() = "RenderedCompactJsonFormatter" or
+    formatter.getObjectType().hasFullyQualifiedName("Serilog.Formatting.Json", "JsonFormatter") or
+    formatter.getObjectType().getName() = "JsonFormatter"
+  )
+}
+
+/**
  * A predicate to detect if Serilog is configured with ONLY safe formatters.
- * This is a conservative check - we only sanitize if we can prove all outputs are safe.
- * For mixed configurations (safe + unsafe), we do NOT sanitize.
+ * This checks that ALL WriteTo calls use safe formatters (RenderedCompactJsonFormatter or JsonFormatter).
+ * If ANY WriteTo call lacks a safe formatter, the entire configuration is considered unsafe.
  */
 private predicate isSerilogConfiguredSafelyOnly() {
-  // Check if RenderedCompactJsonFormatter is used in the application
+  // Check if RenderedCompactJsonFormatter or JsonFormatter is used in the application
   exists(ObjectCreation oc |
     oc.getObjectType().hasFullyQualifiedName("Serilog.Formatting.Compact", "RenderedCompactJsonFormatter") or
-    oc.getObjectType().getName() = "RenderedCompactJsonFormatter"
+    oc.getObjectType().getName() = "RenderedCompactJsonFormatter" or
+    oc.getObjectType().hasFullyQualifiedName("Serilog.Formatting.Json", "JsonFormatter") or
+    oc.getObjectType().getName() = "JsonFormatter"
   ) and
-  // Ensure no unsafe logging patterns exist in string literals
-  // This catches unsafe outputTemplate patterns like {Message:lj}
-  not exists(StringLiteral sl |
-    sl.getValue().matches("%{Message:lj}%") or
-    sl.getValue().matches("%{Message}%") and not sl.getValue().matches("%{Message:j}%")
-  ) and
+  // Ensure no unsafe logging outputs exist
+  not hasUnsafeSerilogOutputs() and
   // Check that Serilog is configured as the logger provider
   exists(MethodCall useSerilog |
     useSerilog.getTarget().hasName("UseSerilog")

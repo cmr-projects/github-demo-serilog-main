@@ -6,7 +6,9 @@ If unsanitized user input is written to a log entry, a malicious user may be abl
 
 Forgery can occur if a user provides some input with characters that are interpreted when the log output is displayed. If the log is displayed as a plain text file, then newline characters can be used by a malicious user. If the log is displayed as HTML, then arbitrary HTML may be included to spoof log entries.
 
-However, when Serilog is configured with safe formatters like `RenderedCompactJsonFormatter`, log entries are properly escaped and structured as JSON, preventing log forging attacks. This query recognizes such safe configurations and does not report vulnerabilities in those cases.
+However, when Serilog is configured with **exclusively safe** formatters like `RenderedCompactJsonFormatter`, log entries are properly escaped and structured as JSON, preventing log forging attacks. This query recognizes such safe configurations and does not report vulnerabilities in those cases.
+
+**Important**: This query uses a conservative approach and only exempts logging when ALL Serilog outputs use safe formatting. Mixed configurations (safe + unsafe) will still report vulnerabilities.
 
 ## Recommendation
 

@@ -19,20 +19,32 @@ import semmle.code.csharp.commons.Loggers
 
 /**
  * A predicate to detect if there are unsafe Serilog output configurations.
- * An output is unsafe if Serilog is configured but no safe formatters are used.
+ * An output is unsafe if Serilog is configured but has ANY outputs that don't use safe formatters.
  * Safe formatters are: RenderedCompactJsonFormatter, JsonFormatter.
+ * Mixed configurations (safe + unsafe) are considered unsafe.
  */
 private predicate hasUnsafeSerilogOutputs() {
   // Check if Serilog is configured
   exists(MethodCall useSerilog |
     useSerilog.getTarget().hasName("UseSerilog")
   ) and
-  // But no safe formatters are used
-  not exists(ObjectCreation formatter |
-    formatter.getObjectType().hasFullyQualifiedName("Serilog.Formatting.Compact", "RenderedCompactJsonFormatter") or
-    formatter.getObjectType().getName() = "RenderedCompactJsonFormatter" or
-    formatter.getObjectType().hasFullyQualifiedName("Serilog.Formatting.Json", "JsonFormatter") or
-    formatter.getObjectType().getName() = "JsonFormatter"
+  (
+    // Either no safe formatters exist at all
+    not exists(ObjectCreation formatter |
+      formatter.getObjectType().hasFullyQualifiedName("Serilog.Formatting.Compact", "RenderedCompactJsonFormatter") or
+      formatter.getObjectType().getName() = "RenderedCompactJsonFormatter" or
+      formatter.getObjectType().hasFullyQualifiedName("Serilog.Formatting.Json", "JsonFormatter") or
+      formatter.getObjectType().getName() = "JsonFormatter"
+    )
+    or
+    // Or there are outputTemplate string literals indicating unsafe raw text outputs
+    exists(StringLiteral sl |
+      sl.getValue().matches("%{Timestamp%") or
+      sl.getValue().matches("%{Level%") or
+      sl.getValue().matches("%{Message%") or
+      sl.getValue().matches("%{NewLine%") or
+      sl.getValue().matches("%{Exception%")
+    )
   )
 }
 
